@@ -5,9 +5,18 @@ import { tokens } from "../../../../theme";
 
 interface AppBarButtonProps {
   icon: React.ReactNode;
+  width?: string;
+  height?: string;
+  addMargin?: boolean;
   onClickAvatar: (event: React.MouseEvent<HTMLElement>) => void;
 }
-export const AppBarButton = ({ icon, onClickAvatar }: AppBarButtonProps) => {
+export const AppBarButton = ({
+  icon,
+  width = "34px",
+  height = "34px",
+  addMargin = true,
+  onClickAvatar,
+}: AppBarButtonProps) => {
   const theme = useTheme();
   const mode = theme.palette.mode;
   const colors = tokens(theme.palette.mode);
@@ -15,11 +24,11 @@ export const AppBarButton = ({ icon, onClickAvatar }: AppBarButtonProps) => {
     <>
       <ButtonBase
         sx={{
-          ml: { sm: "none", md: "16px" },
+          ml: addMargin ? { sm: "none", md: "16px" } : "none",
           borderRadius: "6px",
           overflow: "hidden",
-          width: "34px",
-          height: "34px",
+          width: width,
+          height: height,
         }}
       >
         <Avatar

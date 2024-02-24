@@ -5,19 +5,23 @@ import {
   CartesianGrid,
   XAxis,
   YAxis,
-  Tooltip,
   ReferenceArea,
   ResponsiveContainer,
-  Legend,
   ReferenceLine,
+  Tooltip,
 } from "recharts";
 import { useSignalR } from "../../utils/signalRConnection";
+import { AppBarButton } from "../dashboard/global/header/AppBarButton";
+import { IconZoomCancel } from "@tabler/icons-react";
+import { useTheme } from "@mui/material";
+import { tokens } from "../../theme";
 
 type DataType = { X: number; Y: number; Z: number };
 
-const RealtimeChart = () => {
+const CustomLineChart = () => {
   const initialData = useSignalR();
-
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
   const [zoomGraph, setZoomGraph] = useState<{
     left?: string;
     right?: string;
@@ -108,15 +112,12 @@ const RealtimeChart = () => {
   const { left, right, refAreaLeft, refAreaRight, top, bottom } = zoomGraph;
   return (
     <div
-      className="highlight-bar-charts"
-      style={{ userSelect: "none", width: "100%" }}
+      style={{ display: "flex", justifyContent: "space-between" }}
+      className="disable-text-selection"
     >
-      <button type="button" className="btn update" onClick={() => zoomOut()}>
-        Zoom Out
-      </button>
-
-      <ResponsiveContainer width="100%">
+      <ResponsiveContainer width="100%" height={150}>
         <LineChart
+          margin={{ top: 10, left: -15, right: 10, bottom: 0 }}
           data={initialData}
           onMouseDown={(e) => {
             if (e.activeLabel) {
@@ -136,10 +137,18 @@ const RealtimeChart = () => {
           }}
           onMouseUp={() => zoom()}
         >
-          <CartesianGrid strokeDasharray="1 1" />
+          <CartesianGrid
+            strokeDasharray="1 4"
+            stroke={colors.textVariant.TextSecondary}
+          />
           <XAxis
+            axisLine={{
+              stroke: colors.textVariant.TextTitle,
+              strokeWidth: 2,
+            }}
+            tick={{ fill: colors.textVariant.TextTitle }}
+            interval={3}
             dataKey="X"
-            name="stature"
             unit="m"
             ticks={[
               0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650,
@@ -151,39 +160,55 @@ const RealtimeChart = () => {
             allowDataOverflow
           />
           <YAxis
-            domain={left && right ? [bottom, top] : [80, 140]}
+            axisLine={{
+              stroke: colors.textVariant.TextTitle,
+              strokeWidth: 2,
+            }}
+            tick={{ fill: colors.textVariant.TextTitle }}
+            domain={left && right ? [bottom, top] : [90, 130]}
             type="number"
+            ticks={[90, 95, 100, 105, 110, 115, 120, 125, 130]}
+            interval={1}
             allowDataOverflow
           />
-
-          <Tooltip />
-          <Legend />
           <ReferenceLine
             y={120}
-            label="Max"
-            stroke="red"
+            label={{
+              value: "Max",
+              fill: colors.textVariant.TextPrimary,
+              position: "top",
+            }}
+            stroke={colors.error.errorDark}
+            strokeWidth={2}
             strokeDasharray="4 4"
             ifOverflow="extendDomain"
           />
           <ReferenceLine
             y={100}
-            label="Min"
+            label={{
+              value: "Min",
+              fill: colors.textVariant.TextPrimary,
+              position: "bottom",
+            }}
             stroke="green"
             strokeDasharray="4 4"
+            strokeWidth={2}
             ifOverflow="extendDomain"
           />
-
+          <Tooltip />
           <Line
             type="monotone"
             dataKey="Y"
-            stroke="#8884d8"
+            stroke={colors.secondary.secondaryMain}
+            strokeWidth={1.5}
             isAnimationActive={false}
             dot={false}
           />
           <Line
             type="monotone"
             dataKey="Z"
-            stroke="#82ca9d"
+            strokeWidth={1.5}
+            stroke={colors.primary.primaryMain}
             isAnimationActive={false}
             dot={false}
           />
@@ -197,16 +222,15 @@ const RealtimeChart = () => {
           ) : null}
         </LineChart>
       </ResponsiveContainer>
+      <AppBarButton
+        icon={<IconZoomCancel size="1.2rem" />}
+        width="25px"
+        height="25px"
+        addMargin={false}
+        onClickAvatar={() => zoomOut()}
+      />
     </div>
   );
 };
 
-export default RealtimeChart;
-
-// import { useSignalR } from "../../signalRConnection";
-// const Index = () => {
-//   const dataArray = useSignalR();
-//   return <>{dataArray.length === 0 ? "oops" : "WOW"}</>;
-// };
-
-// export default Index;
+export default CustomLineChart;
